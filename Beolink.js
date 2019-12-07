@@ -4,7 +4,7 @@ var client= redis.createClient();
 
 function Beolink(port)
 {
-    this.handler= btnHandler;
+ //   this.handler= btnHandler;
 	this.lasttime= process.hrtime();
 	this.decoding= 0;
 	this.lastbit= 0;
