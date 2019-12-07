@@ -1,3 +1,3 @@
-!#/usr/bin/env node
+#!/usr/bin/env node
 var Beolink= require('./Beolink');
 new Beolink(17);
