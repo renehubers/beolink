@@ -124,7 +124,7 @@ function Beolink(port)
 		client.publish('beolink', JSON.stringify({source: self.source, key: code[3]}));
 		client.publish(self.source, code[3]);
 		if (code[3] == 'EXIT' && self.source == 'LIGHT') {
-			self.source= $self.lastsource;
+			self.source= self.lastsource;
 		} 
 
 		//self.handler(self.source,code[3]);
