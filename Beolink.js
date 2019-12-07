@@ -116,7 +116,8 @@ function Beolink(port)
 
 	this.callback= function(code) {
 		if (!code[3]) return;
-		client.publish('beolink', {source: source, key: code[3]});
+		client.publish('beolink', {source: self.source, key: code[3]});
+		
 		//self.handler(self.source,code[3]);
 		if (code[3].match(/^(TV|LIGHT|RADIO|PHONO|A.AUX|SAT|DVD|CD|V.TAPE|A.TAPE|STDBY)$/)) {
 			self.source= code[3];
