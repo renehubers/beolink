@@ -1,0 +1,17 @@
+{
+  "name": "beolink",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "onoff": "^5.0.0",
+    "redis": "^2.8.0",
+    "unescape": "^1.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
