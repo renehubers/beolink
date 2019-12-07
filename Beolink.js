@@ -14,6 +14,7 @@ function Beolink(port)
 	this.pending= null;
 	this.pendingcode= '';
 	this.source= 'STDBY';
+	this.lastsource= '';
 	this.ir= new Gpio(port,'in','rising');
 	this.numbers= '';
 	var self= this;
@@ -115,14 +116,19 @@ function Beolink(port)
 	}
 
 	this.callback= function(code) {
-		if (!code[3]) return;
-		client.publish('beolink', JSON.stringify({source: self.source, key: code[3]}));
-		client.publish(self.source, code[3]);
-
-		//self.handler(self.source,code[3]);
+		if (!code[3]) code[3]= code[2];
 		if (code[3].match(/^(TV|LIGHT|RADIO|PHONO|A.AUX|SAT|DVD|CD|V.TAPE|A.TAPE|STDBY)$/)) {
+			self.lastsource= self.source;
 			self.source= code[3];
 		} 
+		client.publish('beolink', JSON.stringify({source: self.source, key: code[3]}));
+		client.publish(self.source, code[3]);
+		if (code[3] == 'EXIT' && self.source == 'LIGHT') {
+			self.source= $self.lastsource;
+		} 
+
+		//self.handler(self.source,code[3]);
+	
 	}
 	
 	this.buttons= {
