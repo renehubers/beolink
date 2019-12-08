@@ -78,6 +78,8 @@ function Beolink(port)
 	
 	this.recode= function(code) {
 		var self= this;
+		self.callback(code);
+		return;
 		if (code[3] && code[3].match(/^(MENU|GO)$/)) {
 			if (self.pending) {
 				clearTimeout(self.pending);
