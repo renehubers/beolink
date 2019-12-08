@@ -50,7 +50,8 @@ function Beolink(port)
 							code.substr(4,5).bin2hex(),
 							code.substr(9,8).bin2hex()];
 				code2[3]= self.buttons[code2[2]];
-				self.recode(code2);
+				//self.recode(code2);
+				self.callback(code2);
 			}
 			self.decode_end();
 		}
@@ -78,8 +79,6 @@ function Beolink(port)
 	
 	this.recode= function(code) {
 		var self= this;
-		//self.callback(code);
-		//return;
 		if (code[3] && code[3].match(/^(MENU|GO)$/)) {
 			if (self.pending) {
 				clearTimeout(self.pending);
@@ -119,14 +118,14 @@ function Beolink(port)
 
 	this.callback= function(code) {
 		if (!code[3]) code[3]= code[2];
-		if (code[3].match(/^(TV|LIGHT|RADIO|PHONO|A.AUX|SAT|DVD|CD|V.TAPE|A.TAPE|STDBY)$/)) {
-			self.lastsource= self.source;
-			self.source= code[3];
-		} 
 		client.publish('beolink', JSON.stringify({source: self.source, key: code[3]}));
 		client.publish(self.source, code[3]);
 		if (code[3] == 'EXIT' && self.source == 'LIGHT') {
 			self.source= self.lastsource;
+		} 
+		if (code[3].match(/^(TV|LIGHT|RADIO|PHONO|A.AUX|SAT|DVD|CD|V.TAPE|A.TAPE|STDBY)$/)) {
+			self.lastsource= self.source;
+			self.source= code[3];
 		} 
 
 		//self.handler(self.source,code[3]);
