@@ -2,9 +2,9 @@ var Gpio= require('onoff').Gpio;
 var redis= require('redis')
 var client= redis.createClient();
 
-function Beolink(port)
+function Beolink(port, btnHandler)
 {
- //   this.handler= btnHandler;
+    this.handler= btnHandler;
 	this.lasttime= process.hrtime();
 	this.decoding= 0;
 	this.lastbit= 0;
@@ -12,11 +12,13 @@ function Beolink(port)
 	this.cnt= 0;
 	this.lastcode= '';
 	this.pending= null;
-	this.pendingcode= '';
+	this.pendingcode= null;
 	this.source= 'STDBY';
 	this.lastsource= '';
 	this.ir= new Gpio(port,'in','rising');
 	this.numbers= '';
+	this.start= process.hrtime();
+	this.lastbutton=''
 	var self= this;
 	
 	this.ir.watch(function (err, value) {
@@ -49,9 +51,10 @@ function Beolink(port)
 				var code2= [code.substr(0,4).bin2hex(),
 							code.substr(4,5).bin2hex(),
 							code.substr(9,8).bin2hex()];
-				code2[3]= self.buttons[code2[2]];
+				const button= self.buttons[code2[2]];
+				if (button) self.recode(button, process.hrtime())
 				//self.recode(code2);
-				self.callback(code2);
+				//self.callback(code2);
 			}
 			self.decode_end();
 		}
@@ -76,60 +79,57 @@ function Beolink(port)
 	this.decode_end= function() {
 		this.decoding= 0;
 	}
+
+	this.clearTimers= function() {
+		var self= this
+		if (self.pending) {
+			clearTimeout(self.pending)
+			self.pending= null
+		}
+	}
 	
 	this.recode= function(code) {
 		var self= this;
-		if (code[3] && code[3].match(/^(MENU|GO)$/)) {
-			if (self.pending) {
-				clearTimeout(self.pending);
-				self.pending= null;
-				if (self.numbers.length > 0) {
-					code[3]= self.numbers;
-					self.numbers= '';
-				} 
-				self.callback(code);
-			} else {
-				self.pendingcode= code[3];
-				self.pending= setTimeout(function(code) {
-					self.pending= null;
-					self.callback(code);
-				}, 1700, code);
-			}
-		} else if (self.pending && code[3] && code[3].match(/^(LEFT|RIGHT|UP|DOWN)$/)) {
-			clearTimeout(self.pending);
-			self.pending= null;
-			code[3]=self.pendingcode+'+'+code[3];
-			self.callback(code);
-		} else if (code[3] != null  && code[3].match(/[0-9]/)) {
-			if (self.pending) {
-				clearTimeout(self.pending);
-			}
-			self.numbers+= code[3];
-			code[3]= self.numbers;
-			self.pending= setTimeout(function(code) {
-				self.pending= null;
-				self.callback(code);
-				self.numbers= '';
-			}, 1700, code);
-		} else {
-			self.callback(code);
+		var elapsed= process.hrtime(self.start)
+		self.start= process.hrtime()
+		var t= elapsed[0]+elapsed[1]/1000000000
+		var newbutton= code
+
+		if (code.match(/[0-9]/)) {
+			self.numbers+= code;
+			newbutton= null
+			this.clearTimers()
+			self.pending= setTimeout(() => {
+				self.pending= null
+				this.recode('GOTO')
+			}, 1700);
+		} else if (code == 'GOTO' && self.numbers != '') {
+			newbutton= self.numbers
+			self.numbers= ''
+			this.clearTimers()
+		} else if (code.match(/^(GO|RED|YELLOW|GREEN|BLUE)$/) && self.numbers != '') {
+			newbutton= code + '+' + self.numbers
+			self.numbers= ''
+			this.clearTimers()
+		}
+
+		if (newbutton != null)
+		{
+			self.callback(newbutton)
 		}
 	}
 
 	this.callback= function(code) {
-		if (!code[3]) code[3]= code[2];
-		client.publish('beolink', JSON.stringify({source: self.source, key: code[3]}));
-		client.publish(self.source, code[3]);
-		if (code[3] == 'EXIT' && self.source == 'LIGHT') {
+		client.publish('beolink', JSON.stringify({source: self.source, key: code}));
+		client.publish(self.source, code);
+		if (code == 'EXIT' && self.source == 'LIGHT') {
 			self.source= self.lastsource;
 		} 
-		if (code[3].match(/^(TV|LIGHT|RADIO|PHONO|A.AUX|SAT|DVD|CD|V.TAPE|A.TAPE|STDBY)$/)) {
+		if (code.match(/^(TV|LIGHT|RADIO|PHONO|A.AUX|SAT|DVD|CD|V.TAPE|A.TAPE|STDBY)$/)) {
 			self.lastsource= self.source;
-			self.source= code[3];
+			self.source= code;
 		} 
-
-		//self.handler(self.source,code[3]);
-	
+		self.handler(self.source,code);
 	}
 	
 	this.buttons= {
@@ -191,8 +191,8 @@ function Beolink(port)
 		'58': 'LIST',
 		'7F': 'EXIT',
 		'36': 'STOP',
-		'60': 'VOLUMEUP',
-		'64': 'VOLUMEDOWN',
+		'60': 'VOLUME+',
+		'64': 'VOLUME-',
 		'0D': 'MUTE',
 		'0C': 'STDBY',
 	};

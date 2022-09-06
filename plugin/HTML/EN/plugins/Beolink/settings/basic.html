@@ -1,0 +1,15 @@
+[% PROCESS settings/header.html %]
+
+	[% WRAPPER setting title="PLUGIN_BEOLINK" desc="" %]
+		<div class="prefDesc">[% "PLUGIN_BEOLINK_DESC" | string %]</div>
+	[% END %]
+
+	[% WRAPPER setting title="SETUP_BEOLINKPORT" desc="SETUP_BEOLINKPORT_DESC" %]
+		<input type="text" class="stdedit" name="pref_beolinkport" id="beolinkport" value="[% prefs.pref_beolinkport %]" size="15">
+	[% END %]
+
+	[% WRAPPER setting title="SETUP_BEOLINKPLAYER" desc="SETUP_BEOLINKPLAYER_DESC" %]
+		<input type="text" class="stdedit" name="pref_beolinkplayer" id="beolinkplayer" value="[% prefs.pref_beolinkplayer %]" size="15">
+	[% END %]
+
+[% PROCESS settings/footer.html %]

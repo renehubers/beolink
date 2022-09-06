@@ -1,0 +1,21 @@
+PLUGIN_BEOLINK_MODULE_NAME
+	EN	Beolink Interface
+
+PLUGIN_BEOLINK
+	EN	Beolink Interface
+
+PLUGIN_BEOLINK_DESC
+	EN	Connect your queezecenter to your beo stuff
+
+SETUP_BEOLINKPORT
+	EN	Port to use for beolink
+
+SETUP_BEOLINKPORT_DESC
+	EN	Port to use for beolink
+
+SETUP_BEOLINKPLAYER
+	EN	Mac address of slimp3 player
+
+SETUP_BEOLINKPLAYER_DESC
+	EN	Mac address of slimp3 player
+

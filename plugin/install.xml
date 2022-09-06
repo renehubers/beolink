@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<extension> 
+	<id></id>
+	<name>PLUGIN_BEOLINK_MODULE_NAME</name>
+	<module>Plugins::Beolink::Plugin</module>
+	<playerMenu>MUSIC_SERVICES</playerMenu>
+	<version>1.0</version>
+	<description>PLUGIN_BEOLINK_MODULE_NAME</description>
+	<creator>Rene Hubers</creator>
+	<email>rene@hubers.nu</email>
+	<defaultState>enabled</defaultState>
+	<homepageURL>http://www.slimdevices.com/</homepageURL>
+	<optionsURL>plugins/Beolink/settings/basic.html</optionsURL>
+	<type>2</type>
+	<targetApplication>
+		<id>Squeezebox Server</id>
+		<minVersion>8.0</minVersion>
+		<maxVersion>*</maxVersion>
+	</targetApplication>
+</extension>
